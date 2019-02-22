@@ -24,6 +24,17 @@ public class MyClientSocket {
         return true;
     }
 
+
+    public void sendMessage(String msg){
+        try {
+            mySocket.sendMsg(msg);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
     public void disconnect() {
         if (mySocket != null) {
             mySocket.close();

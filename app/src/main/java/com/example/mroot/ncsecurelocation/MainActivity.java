@@ -16,12 +16,20 @@ import android.widget.Toast;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.Permission;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import connect.ConnectConstant;
+import connect.MyClientSocket;
 import data.MsgType;
 import fr.quentinklein.slt.LocationTracker;
 import fr.quentinklein.slt.TrackerSettings;
+import utils.MyThreadPool;
 import utils.ToolUtils;
 
 public class MainActivity extends AppCompatActivity {
@@ -36,6 +44,9 @@ public class MainActivity extends AppCompatActivity {
     private static MainActivity mainActivity;
     // 设置一个经纬度默认值  教研室
     private volatile String lonAndLat = "118.922918,32.116803";
+
+    MyClientSocket myClientSocket;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,16 +58,48 @@ public class MainActivity extends AppCompatActivity {
         scrollView.getViewTreeObserver().addOnGlobalLayoutListener(() ->
                 scrollView.post(() -> scrollView.fullScroll(View.FOCUS_DOWN)));
 
-
+        init();
     }
 
+    private void init() {
+        myClientSocket = new MyClientSocket();
+    }
+
+    @OnClick(R.id.btn_connect)
+    public void connect() {
+
+        MyThreadPool.execute(new Runnable() {
+            @Override
+            public void run() {
+                myClientSocket.connect(ConnectConstant.SERVER_IP, ConnectConstant.SERVER_PORT);
+            }
+        });
+
+    }
 
     @OnClick(R.id.btn_test)
-    public void test(){
+    public void test() {
         Toast.makeText(this, "test", Toast.LENGTH_SHORT).show();
+//        try {
+//           //String gbk = URLEncoder.encode("msg test","GBK");
+//            //System.out.println(gbk);
+//            myClientSocket.sendMessage("msg test");
+//        } catch (UnsupportedEncodingException e) {
+//            e.printStackTrace();
+//        }
+        String msg = lonAndLat;
+        int len = msg.getBytes().length;
+        System.out.println("len = " + len);
+        //myClientSocket.sendMessage(lonAndLat);
+
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                myClientSocket.sendMessage(lonAndLat);
+            }
+        }, 0, 1000);
     }
-
-
 
 
     /**
@@ -191,6 +234,4 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .start();
     }
-
-
 }
