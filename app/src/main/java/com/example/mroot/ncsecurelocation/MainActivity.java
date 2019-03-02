@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void init() {
         myClientSocket = new MyClientSocket();
+
     }
 
     @OnClick(R.id.btn_connect)
